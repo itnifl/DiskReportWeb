@@ -1,0 +1,21 @@
+{
+    "name": "DiskReporterAPI",
+    "main": "./server.js",
+    "description": "API for HTML frontend using a C# backend",
+    "version": "0.0.1",
+    "scripts": {
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "repository":"",
+    "author":"Atle Holm",
+    "private": true,
+    "dependencies": {
+		"hapi": "latest",
+		"edge": "latest",
+		"cacheman-mongo": "latest",
+        "nodeunit": "latest",
+        "handlebars": "latest",
+        "colors": "latest"
+    }
+}
+

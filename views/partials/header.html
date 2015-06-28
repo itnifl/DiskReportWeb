@@ -1,0 +1,27 @@
+<div class="navbar navbar-inverse">
+    <ul class="nav navbar-nav">
+        <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Reporting <b class="caret"></b></a>
+            <ul class="dropdown-menu" id="goReports">
+                <li><a href="#">Download Excel Report</a></li>
+                <li><a href="#">Mail Excel Report</a></li>
+            </ul>
+        </li>
+    </ul> 
+    <ul class="nav navbar-nav">
+        <li class="dropdown">
+        <a href="#" class="dropdown-toggle" data-toggle="dropdown">Actions <b class="caret"></b></a>
+            <ul class="dropdown-menu">          
+                <li><a href="#" id="goDataUsageList" Style="font-weight:bold;">Data Usage List</a></li>
+                <li><a href="#" id="goCustomerAdmin">Customer Admin</a></li>
+                <li><a href="#" id="goAdvancedFilter">Advanced Filter</a></li>  
+            </ul>
+        </li>
+    </ul>  
+    <form class="navbar-form navbar-right" role="search" style="margin-right:1px;">
+        <div class="form-group">
+            <input type="text" class="form-control" placeholder="Search">
+        </div>
+    </form>
+</div>
+<h2 style="text-align:center;">{{@root.title}}{{^title}}Welcome Home{{/title}}</h2>
