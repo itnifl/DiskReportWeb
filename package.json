@@ -6,7 +6,7 @@
     "scripts": {
         "test": "echo \"Error: no test specified\" && exit 1"
     },
-    "repository":"",
+    "repository":"https://github.com/itnifl/DiskReportWeb",
     "author":"Atle Holm",
     "private": true,
     "dependencies": {
@@ -15,7 +15,8 @@
 		"cacheman-mongo": "latest",
         "nodeunit": "latest",
         "handlebars": "latest",
-        "colors": "latest"
+        "colors": "latest".
+        "path","latest"
     }
 }
 

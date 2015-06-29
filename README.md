@@ -1,13 +1,9 @@
-<<<<<<< HEAD
 DiskReportWeb
-=======
-DiskReportAPI
->>>>>>> 4ff04a27d55890746c025b7d67147d74fb03007f
 ============
 
 Initial Comments
 ----------------
-This API uses [DiskReporter]https://github.com/itnifl/DiskReporter to fetch data, cache it in MongoDB and present it as JSON to the requesting system.
+This API uses [DiskReporter]https://github.com/itnifl/DiskReporter to fetch data, cache it in MongoDB and present it as HTML to the requesting system.
 
 ###  The commandments:
 	1. All shall be nodeunit tested.
@@ -22,9 +18,9 @@ Prerequisites
 -------------
 My Movie API installation and operation requires that the following software is installed:
 
-	1. Node.js 0.8.x or later
+	1. npm
 	2. Node-gyp and mocha
-	3. npm
+	3. Node.js 0.8.x or later
 	4. Mono 3.4.0 x64 if you are using Linux or .Net 4.5 if you are using Windows
 	5. Mongodb server if you want this system to cache results from api(recommended).
 

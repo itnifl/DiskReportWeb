@@ -1,19 +1,19 @@
 /***
  * ServerCollectionClass class.
- * @param {Obj} serverObject the represents our server
+ * @param {Obj} initialServer the represents our first server in the list
  */
-function ServerCollectionClass(server) {
+function ServerCollectionClass(initialServer) {
     var serverList = [];
     var totalStorage = 0; //Total storage in MB that is fetched by looping through all disks client side
-    var totalWindowsSystemStorage = 0; //Total storage in MB that is fetched by looping through all disks client side
+    var totalSystemStorage = 0; //Total storage in MB that is fetched by looping through all disks client side
 
-    if (server) serverList.push(server);
+    if (initialServer) serverList.push(initialServer);
     return {
         addServer: function (newServer) {
             if (newServer) {
                 serverList.push(newServer);
                 totalStorage += Math.ceil(newServer.TotalStorage / 1024 / 1024);
-                totalWindowsSystemStorage += Math.ceil(newServer.TotalSystemStorage / 1024 / 1024);
+                totalSystemStorage += Math.ceil(newServer.TotalSystemStorage / 1024 / 1024);
             }
         },
         getServers: function () {
@@ -28,8 +28,8 @@ function ServerCollectionClass(server) {
         getTotalStorage: function () {
             return totalStorage;
         },
-        getTotalWindowsSystemStorage: function () {
-            return totalWindowsSystemStorage;
+        getTotalSystemStorage: function () {
+            return totalSystemStorage;
         }
     };
 };
