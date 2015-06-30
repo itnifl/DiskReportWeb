@@ -3,7 +3,7 @@ DiskReportWeb
 
 Initial Comments
 ----------------
-This API uses [DiskReporter]https://github.com/itnifl/DiskReporter to fetch data, cache it in MongoDB and present it as HTML to the requesting system.
+This API uses [DiskReporter](https://github.com/itnifl/DiskReporter) to fetch data, cache it in MongoDB and present it as HTML to the requesting system.
 
 ###  The commandments:
 	1. All shall be nodeunit tested.
