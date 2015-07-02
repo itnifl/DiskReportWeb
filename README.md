@@ -3,7 +3,9 @@ DiskReportWeb
 
 Initial Comments
 ----------------
-This API uses [DiskReporter](https://github.com/itnifl/DiskReporter) to fetch data, cache it in MongoDB and present it as HTML to the requesting system.
+This system is not complete yet, code is here only for demo purposes!
+
+This web solution uses [DiskReporter](https://github.com/itnifl/DiskReporter) to fetch data, cache it in MongoDB and present it as HTML to the requesting system.
 
 ###  The commandments:
 	1. All shall be nodeunit tested.
@@ -23,6 +25,7 @@ My Movie API installation and operation requires that the following software is 
 	3. Node.js 0.8.x or later
 	4. Mono 3.4.0 x64 if you are using Linux or .Net 4.5 if you are using Windows
 	5. Mongodb server if you want this system to cache results from api(recommended).
+	6. [DiskReporter](https://github.com/itnifl/DiskReporter)
 
 Installing Prerequisites
 ------------------------
@@ -47,30 +50,43 @@ This script can be used(Debian):
 Also, please see:
 - https://github.com/tjanczuk/edge#building-on-linux
 
-In short:
+Compile the newest version of [DiskReporter](https://github.com/itnifl/DiskReporter) as dll files and place under this solutions dll-sources folder. Note that if you do not do this, you will be using the default dll files that come with this solution. These dll files provide only demo data and do not actually connect to any system to fetch data.
+
+After this is done, set up the XML configuration files that are in the same folder as the dll files(dll-sources)
+. The setup of these files are self explanatory, and the rules for the XML files are contained in the corresponding xsd files.
+
+For instance:
 ```
-#Prerequisites for below:
-apt-get -y install curl g++ pkg-config libgdiplus
-
-#Node-gyp and mocha:
-npm install node-gyp -g
-npm install mocha -g
-
-#Install Mono:
-sudo curl http://download.mono-project.com/sources/mono/mono-3.4.0.tar.bz2 > mono-3.4.0.tar.bz2
-sudo tar -xvf mono-3.4.0.tar.bz2
-sudo curl https://raw.githubusercontent.com/tjanczuk/edge/master/tools/Microsoft.Portable.Common.targets > ./mono-3.4.0/mcs/tools/xbuild/targets/Microsoft.Portable.Common.targets
-cd mono-3.4.0
-# see http://stackoverflow.com/questions/15627951/mono-dllnotfound-error
-sudo bash -c 'sed -i "s/\@prefix\@\/lib\///g" ./data/config.in'
-sudo bash -c './configure --prefix=/usr/local --with-glib=embedded --enable-nls=no'
-sudo make
-make install
-ldconfig
+<xsd:element name="SERVER" type="serverConfig" maxOccurs="*" />
 
 ```
+The serverConfig type refers to:
+```
+<xsd:complexType name="serverConfig">
+	<xsd:sequence>
+		<xsd:element name="ADDRESS" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+		<xsd:element name="NAME" type="xsd:string" minOccurs="0" maxOccurs="1"/>
+		<xsd:element name="USER" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+		<xsd:element name="PASSWORD" type="xsd:string" minOccurs="1" maxOccurs="1"/>
+	</xsd:sequence>
+</xsd:complexType>
+```
 
-
+Thus in the XML file you may write a server tag cluster two or any number of multiple times for every TSM server you want to run the system against:
+```
+<SERVER>
+	<ADDRESS>8.8.8.8</ADDRESS>
+	<NAME>TSM01</NAME>
+	<USER>tsmChatter</USER>
+	<PASSWORD>Pass123</PASSWORD>
+</SERVER>
+<SERVER>
+	<ADDRESS>8.8.8.9</ADDRESS>
+	<NAME>TSM02</NAME>
+	<USER>tsmChatter</USER>
+	<PASSWORD>Pass123</PASSWORD>
+</SERVER>
+```
 
 When done, create the database movies as such from the Linux console.
 `mongo DiskReporterCache`
