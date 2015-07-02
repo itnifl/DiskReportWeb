@@ -1,1 +1,75 @@
-{{> serverlist body }}
+<script type="text/javascript">
+  var ourServerData = {{{ printjson body }}};
+  $(ourServerData.ServerCollection).each(function(index, server) {
+    $(server.Disks).each(function(index, disk) {      
+      if(disk.DiskPath.match(/\$$/g)) {
+        disk.DiskPath = disk.DiskPath.slice(-2,-1) + ":\\";
+        if(server.OSFamily === null) server.OSFamily = "Windows";  
+      } else if(disk.DiskPath.match(/\:\\$/g) && server.OSFamily === null) {
+        server.OSFamily = "Windows";
+      }  else if(disk.DiskPath == '/' && server.OSFamily === null) {
+        server.OSFamily = "Linux";
+      }
+    });    
+  });
+</script>
+<div class="panel panel-default">
+	<div class="panel-body">
+		<div class="container-fluid">
+			<div class="row">
+				<div class="col-md-2">
+					{{> leftMenuBar }}
+				</div>
+        <div ng-app="myApp" ng-controller="mySelecedServersCtrl">
+  				<div class="col-md-8">
+  			    <div class="alert alert-info" role="alert" style="padding: 0px; margin-bottom: 1px;"><b>All Servers Total Storage:</b> {{body.TotalStorage.TotalCollectionStorage}} bytes</div>					
+  			    <div class="alert alert-info" role="alert" style="padding: 0px; margin-bottom: 1px;"><b>All Servers Linux Root Storage:</b> {{ body.TotalStorage.TotalCollectionLinuxRootStorage }} bytes</div>
+  			    <div class="alert alert-info" role="alert" style="padding: 0px; margin-bottom: 1px;"><b>All Servers Windows System Storage:</b> {{ body.TotalStorage.TotalCollectionWindowsSystemStorage }} bytes</div>
+                    
+            <div class="panel panel-default">
+              <div class="panel-body" style="padding: 4px;">
+                <table class="table table-hover">
+                  <tr>
+                    <th>Name</th>
+                    <th>Total Capacity</th>
+                    <th>Disks</th>
+                    <th>OS</th>
+                  </tr>
+                  <tr ng-repeat="server in servers">
+                    <td valign="top">{[{ server.Name }]}</td>
+                    <td valign="top">{[{ (server.TotalStorage / 1024 / 1024) | number:2  }]} MB</td>
+                    <td><div ng-repeat="disk in server.Disks"><div class="label label-default">{[{ disk.DiskPath | capitalize}]}</div>&nbsp;<span class="label label-default" style="background-color:white; color: black; font-weight: normal;">{[{ (disk.Capacity / 1024 / 1024) | number:2 }]} MB</span></div></td>
+                    <td valign="top">{[{ server.OSFamily | capitalize }]}</td>
+                  </tr>
+                </table>
+              </div>
+            </div>
+          </div>
+  				<div class="col-md-2">					
+  				  {{> serverlist body }}
+            <div class="alert alert-info" role="alert" style="padding: 0px; margin-bottom: 1px;"><img height="32" width="32" src="/images/disk-icon.png" title="Selected total storage" /><span class="pull-right" style="margin-top:7px; margin-right:4px;" title="Selected total storage">{[{ SelectedStorage / 1024 / 1024 | number:2 }]} MB </span></div>          
+            <div class="alert alert-info" role="alert" style="padding: 0px; margin-bottom: 1px;"><img height="32" width="32" src="/images/linux-icon.png" title="Selected total Linux root storage" /><span class="pull-right" style="margin-top:7px; margin-right:4px;" title="Selected total Linux root storage">{[{ SelectedLinuxRootStorage / 1024 / 1024 | number:2 }]} MB </span></div>
+            <div class="alert alert-info" role="alert" style="padding: 0px; margin-bottom: 1px;"><img height="32" width="32" src="/images/windows-icon.png" title="Selected total Windows system storage" /><span class="pull-right" style="margin-top:7px; margin-right:4px;" title="Selected total Windows system storage">{[{ SelectedWindowsSystemStorage / 1024 / 1024 | number:2 }]} MB </span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script>
+  var app = angular.module('myApp', []).filter('capitalize', function() {
+    return function(input, all) {
+      return (!!input) ? input.replace(/([^\W_]+[^\s-]*) */g, function(txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
+      }) : '';
+    };
+  });
+  setAngularBracket(app);
+  app.controller('mySelecedServersCtrl', function($scope) {
+    ourServerData.ServerCollection
+    $scope.servers = ourServerData.ServerCollection;
+    $scope.SelectedStorage = ourServerData.TotalStorage.TotalCollectionStorage;
+    $scope.SelectedLinuxRootStorage = ourServerData.TotalStorage.TotalCollectionLinuxRootStorage;
+    $scope.SelectedWindowsSystemStorage= ourServerData.TotalStorage.TotalCollectionWindowsSystemStorage;
+  });
+</script>

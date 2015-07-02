@@ -11,6 +11,7 @@ hapiServer.views({
     path: './views',
     layoutPath: './views/layout',
     partialsPath: './views/partials',
+    helpersPath: './views/helpers',
     layout: true
 });
 hapiServer.connection({ port: Config.Port });

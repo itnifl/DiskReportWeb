@@ -8,7 +8,7 @@ function getServers(callBack) {
 	var doGetServers = Edge.func({
     	assemblyFile: Path.join(__dirname, 'dll-sources', 'DiskReporter.dll'),
     	typeName: 'DiskReporter.drNodeEdgeIntegration',
-   		methodName: 'Invoke' // This must be Func<object,Task<object>>
+   		methodName: 'FetchVMwareAndTSMServerData' // This must be Func<object,Task<object>>
 	});
 	doGetServers('dll-sources', function (error, result) {
 		if (error) throw error;
@@ -47,6 +47,17 @@ exports.addRoutes = function (HapiServer) {
 	    handler: {
 	        directory: {
 	            path:    __dirname + '/public/js',
+				listing: false,
+				index: false
+	        }
+	    }
+	});
+	HapiServer.route({
+	    method: 'GET',
+	    path: '/images/{filename*}',
+	    handler: {
+	        directory: {
+	            path:    __dirname + '/public/images',
 				listing: false,
 				index: false
 	        }

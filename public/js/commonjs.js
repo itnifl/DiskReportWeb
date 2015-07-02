@@ -41,3 +41,13 @@ function isFunction(functionToCheck) {
     var getType = {};
     return functionToCheck && getType.toString.call(functionToCheck) === '[object Function]';
 }
+/***
+ * setAngularBracket function.
+ * @param {function} appModule represents the angular module we want to use a different set of brackets
+ */
+function setAngularBracket(appModule) {
+    appModule.config(function($interpolateProvider) {
+      $interpolateProvider.startSymbol('{[{');
+      $interpolateProvider.endSymbol('}]}');
+    });
+}

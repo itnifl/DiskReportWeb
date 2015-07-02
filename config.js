@@ -1,5 +1,5 @@
 module.exports = {
-    Hostname: "nodenet.homelinux.net",
+    Hostname: "someserver.homelinux.net",
     Port: 3010,
     MongoServer: "127.0.0.1",
     MongoPort: 27017,
