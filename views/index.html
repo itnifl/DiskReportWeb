@@ -35,7 +35,7 @@
                     <th>Disks</th>
                     <th>OS</th>
                   </tr>
-                  <tr ng-repeat="server in servers">
+                  <tr ng-animate=" 'animate' " ng-repeat="server in servers">
                     <td valign="top">{[{ server.Name }]}</td>
                     <td valign="top">{[{ (server.TotalStorage / 1024 / 1024) | number:2  }]} MB</td>
                     <td><div ng-repeat="disk in server.Disks"><div class="label label-default">{[{ disk.DiskPath | capitalize}]}</div>&nbsp;<span class="label label-default" style="background-color:white; color: black; font-weight: normal;">{[{ (disk.Capacity / 1024 / 1024) | number:2 }]} MB</span></div></td>
@@ -66,10 +66,33 @@
   });
   setAngularBracket(app);
   app.controller('mySelecedServersCtrl', function($scope) {
-    ourServerData.ServerCollection
-    $scope.servers = ourServerData.ServerCollection;
-    $scope.SelectedStorage = ourServerData.TotalStorage.TotalCollectionStorage;
-    $scope.SelectedLinuxRootStorage = ourServerData.TotalStorage.TotalCollectionLinuxRootStorage;
-    $scope.SelectedWindowsSystemStorage= ourServerData.TotalStorage.TotalCollectionWindowsSystemStorage;
+    $scope.servers = [];
+    $scope.SelectedStorage = 0;
+    $scope.SelectedLinuxRootStorage = 0;
+    $scope.SelectedWindowsSystemStorage = 0; 
+    $scope.selectServer = function(serverName) {
+      var ourServer = $.grep(ourServerData.ServerCollection, function (element, index) {
+        return element.Name == serverName;
+      })[0];
+      if($.inArray(ourServer, $scope.servers) != -1) {
+        $scope.servers = $.grep($scope.servers, function(server) { 
+          return server.Name != ourServer.Name; 
+        });
+        $scope.SelectedStorage -= ourServer.TotalStorage;
+        if(ourServer.OSFamily.match(/linux/gi)) {
+          $scope.SelectedLinuxRootStorage -= ourServer.TotalSystemStorage;
+        } else {
+          $scope.SelectedWindowsSystemStorage -= ourServer.TotalSystemStorage;          
+        }
+      } else {
+        $scope.servers.push(ourServer);
+        $scope.SelectedStorage += ourServer.TotalStorage;
+        if(ourServer.OSFamily.match(/linux/gi)) {
+          $scope.SelectedLinuxRootStorage += ourServer.TotalSystemStorage;
+        } else {
+          $scope.SelectedWindowsSystemStorage += ourServer.TotalSystemStorage;          
+        }
+      }
+    }
   });
 </script>

@@ -88,8 +88,11 @@ Thus in the XML file you may write a server tag cluster two or any number of mul
 </SERVER>
 ```
 
-When done, create the database movies as such from the Linux console.
-`mongo DiskReporterCache`
+When done, create the database movies as such from the Linux console:
+
+```
+mongo DiskReporterCache
+```
 
 Installing
 ----------
