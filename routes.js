@@ -75,15 +75,19 @@ exports.addRoutes = function (HapiServer) {
 	    }
 	});
 	HapiServer.route({
-		//Not roperly implemented:
-		//We need to actually get the servers from the C# library
 	    method: 'GET',
 	    path: '/serverlist',
 	    handler: function (request, reply) {
-	        'use strict';
-	        reply({
-	            "servers": [{"Name": "server1"}, {"Name": "server2"}, {"Name": "server3"}]
-	        }).code(200);
+	        'use strict';	        
+	        getServers(function (servers) {
+	    		if(Config.VerboseDebug) {
+	    			console.log("(VerboseDebug)Found servers when using route /serverlist:".yellow);
+	    			console.log(JSON.stringify(servers, null, 2));
+	    		}
+			    reply({
+		            "servers": servers
+		        }).code(200);
+	    	});
 	    }
 	});
 }

@@ -6,7 +6,23 @@
     <link href="/css/standardStyles.css" rel="stylesheet"></link>
     <script src="/js/commonjs.js" type="text/javascript"></script>
     <script src="//netdna.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js" type="text/javascript"></script>
-    <script src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.4.1/angular.min.js" type="text/javascript"></script>
+    <script src="//code.angularjs.org/1.4.1/angular.min.js" type="text/javascript"></script>
+    <script src="//code.angularjs.org/1.4.1/angular-animate.js" type="text/javascript">></script>
+    <script type="text/javascript">
+      var ourServerData = {{{ printjson body }}};
+      $(ourServerData.ServerCollection).each(function(index, server) {
+        $(server.Disks).each(function(index, disk) {      
+          if(disk.DiskPath.match(/\$$/g)) {
+            disk.DiskPath = disk.DiskPath.slice(-2,-1) + ":\\";
+            if(server.OSFamily === null) server.OSFamily = "Windows";  
+          } else if(disk.DiskPath.match(/\:\\$/g) && server.OSFamily === null) {
+            server.OSFamily = "Windows";
+          }  else if(disk.DiskPath == '/' && server.OSFamily === null) {
+            server.OSFamily = "Linux";
+          }
+        });    
+      });
+    </script>
   </head>
   <body>
     {{> header}}
