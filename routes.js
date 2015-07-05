@@ -1,9 +1,10 @@
 var Edge = require('edge');  //https://github.com/tjanczuk/edge/tree/master#scripting-clr-from-nodejs
 var Path = require('path');
 var Colors = require('colors');
-var Config = require('./config')
-
+var Config = require('./config');
+var MongoDB = require('./mongodb');
 var CommonJS = require('./commonServerSideJS.js');
+
 function getServers(callBack) {
 	var doGetServers = Edge.func({
     	assemblyFile: Path.join(__dirname, 'dll-sources', 'DiskReporter.dll'),
@@ -15,6 +16,17 @@ function getServers(callBack) {
 		if(CommonJS.isFunction(callBack)) callBack(result);
 	});
 }
+function getGroups(filter, callBack) {
+	var mongodb = new MongoDB(Config.MongoServer, Config.MongoPort);
+  	if (Config.Debug) console.log("* [GroupAdmin] Getting all defined groups.");
+  	if (Config.VerboseDebug) console.log("(VerboseDebug) Using collection: " + Config.GroupCollection + ", in database: " + Config.Database + "".yellow);
+  	mongodb.open(Config.Database, function(connectionResponse) {
+	    mongodb.getGroups(filter, function(groupInfo) {
+	    	if(Config.VerboseDebug) console.log('(VerboseDebug) Successfully got info on server groups: '+ JSON.stringify(groupInfo, null, 2) + "".yellow);        
+			if(CommonJS.isFunction(callBack)) callBack(groupInfo);            
+	    });      
+  	});
+}
 
 exports.addRoutes = function (HapiServer) {
 	HapiServer.route({
@@ -23,11 +35,27 @@ exports.addRoutes = function (HapiServer) {
 	    handler: function (request, reply) {
 	    	getServers(function (servers) {
 	    		if(Config.VerboseDebug) {
-	    			console.log("(VerboseDebug)Found servers:".yellow);
+	    			console.log("[Default route](VerboseDebug) Found servers:".yellow);
 	    			console.log(JSON.stringify(servers, null, 2));
 	    		}
 			    reply.view('index', { title: 'Welcome to Disk Reporting', body: servers });
 			});
+	    }
+	});
+	HapiServer.route({
+	    method: 'GET',
+	    path: '/GroupAdmin',
+	    handler: function (request, reply) {
+	    	getGroups('', function(groupInfo) {
+	    		reply.view('groupAdmin', { title: 'Group Admin', body: groupInfo });
+	    	});			
+	    }
+	});
+	HapiServer.route({
+	    method: 'GET',
+	    path: '/AdvancedFilter',
+	    handler: function (request, reply) {
+			reply.view('advancedFilter', { title: 'Advanced Filter', body: '' });
 	    }
 	});
 	HapiServer.route({
@@ -76,12 +104,12 @@ exports.addRoutes = function (HapiServer) {
 	});
 	HapiServer.route({
 	    method: 'GET',
-	    path: '/serverlist',
+	    path: '/ServerList',
 	    handler: function (request, reply) {
 	        'use strict';	        
 	        getServers(function (servers) {
 	    		if(Config.VerboseDebug) {
-	    			console.log("(VerboseDebug)Found servers when using route /serverlist:".yellow);
+	    			console.log("(VerboseDebug)Found servers when using route /ServerList:".yellow);
 	    			console.log(JSON.stringify(servers, null, 2));
 	    		}
 			    reply({

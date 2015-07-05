@@ -12,11 +12,13 @@
     "dependencies": {
 		"hapi": "latest",
 		"edge": "latest",
+        "mongodb": "latest",
 		"cacheman-mongo": "latest",
         "nodeunit": "latest",
         "handlebars": "latest",
-        "colors": "latest".
-        "path","latest"
+        "colors": "latest",
+        "path": "latest",
+        "underscore": "latest"
     }
 }
 

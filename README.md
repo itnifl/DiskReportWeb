@@ -4,6 +4,7 @@ DiskReportWeb
 Initial Comments
 ----------------
 This system is not complete yet, code is here only for demo purposes!
+The system has been installed, developed and tested on Debian 7.
 
 This web solution uses [DiskReporter](https://github.com/itnifl/DiskReporter) to fetch data, cache it in MongoDB and present it as HTML to the requesting system.
 
@@ -91,7 +92,7 @@ Thus in the XML file you may write a server tag cluster two or any number of mul
 When done, create the database movies as such from the Linux console:
 
 ```
-mongo DiskReporterCache
+mongo DiskReporter
 ```
 
 Installing

@@ -1,0 +1,12 @@
+<div class="panel panel-primary" id="serverListPanel" style="overflow: hidden;">
+	<div class="panel-heading">
+		<h4 class="panel-title">Detected servers</h4>
+	</div>
+	<div style="padding-left:5px; max-height: 166px; overflow-y: scroll; margin-bottom: 10px;">
+		{{#each this.ServerCollection}}
+			{{#if this.Name}}
+				<div id="{{this.Name}}-selection" onClick='togglePanelSelection(this);' class="myHandCursor" ng-click='selectServer("{{this.Name}}")'>{{this.Name}}</div>
+			{{/if}}
+		{{/each}}
+	</div>
+</div>

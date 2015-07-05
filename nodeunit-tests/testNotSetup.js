@@ -24,7 +24,7 @@ module.exports = {
     getImage: function(test) {   
             test.expect(1);           
             console.log('**Running tests: '.yellow + '(1)');
-            if(config.debug && imageResponse != '') console.log("**Got response with length: ".yellow + imageResponse.length);
+            if(config.Debug && imageResponse != '') console.log("**Got response with length: ".yellow + imageResponse.length);
 
             test.ok(imageResponse.length > 0, "Failed testing that we did not receive an empty result..");   
             test.done();                            
