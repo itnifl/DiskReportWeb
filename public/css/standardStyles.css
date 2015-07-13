@@ -17,7 +17,14 @@
   -webkit-transition-duration: 200ms;
   opacity:0;
 }
-
 .myBtn-blueBackground:hover {
   background-color: rgb(217, 237, 247) !important;
+}
+.list-group-item-search:hover {
+	background-color: #f5f5f5;
+}
+.list-group-item-search-focus {
+	color: #31708f; 
+	background-color: #d9edf7 !important; 
+	border-color: #bce8f1;
 }

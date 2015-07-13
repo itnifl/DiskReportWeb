@@ -18,20 +18,17 @@
             </ul>
         </li>
     </ul>  
-    <!--<div ng-app="mySearchApp" ng-controller="mySearchCtrl">-->
-        <form class="navbar-form navbar-right" role="search" style="margin-right:1px;">
-            <div class="form-group">
-                <input type="text" class="form-control" placeholder="Search">
-            </div>
-        </form>
-    <!--</div>-->
+    <form class="navbar-form navbar-right" role="search" style="margin-right:1px;">
+        <div class="form-group">
+            <input type="text" class="form-control" placeholder="Search" id="myMainSearchBar" onBlur='hideAllSearchItems();'>
+        </div>
+    </form>
 </div>
+<ul class="list-group navList" style="width: 196px; position: absolute; right: 17px; top: 55px; z-index: 1;">
+    {{#each body.Collection}}
+        {{#if this.Name}}
+            <li id="{{this.Name}}-searchResult" data-name="{{this.Name}}" style="display: none;" onClick='toggleSearchSelection(this);' class="myHandCursor list-group-item list-group-item-search">{{this.Name}}</div>
+        {{/if}}
+    {{/each}}
+</ul>
 <h2 style="text-align:center;">{{@root.title}}{{^title}}Welcome Home{{/title}}</h2>
-<!--<script type="text/javascript">
-  var mySearchApp = angular.module('mySearchApp', ['ngAnimate']);
-
-  setAngularBracket(mySearchApp);
-  mySearchApp.controller('mySearchCtrl', function($scope) {
-
-  });
-</script>-->

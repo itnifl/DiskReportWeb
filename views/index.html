@@ -97,7 +97,7 @@
     $scope.SelectedLinuxRootStorage = 0;
     $scope.SelectedWindowsSystemStorage = 0; 
     $scope.selectServer = function(serverName) {
-      var ourServer = $.grep(ourServerData.ServerCollection, function (element, index) {
+      var ourServer = $.grep(ourServerData.Collection, function (element, index) {
         return element.Name == serverName;
       })[0];
       if($.inArray(ourServer, $scope.servers) != -1) {

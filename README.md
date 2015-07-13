@@ -4,7 +4,7 @@ DiskReportWeb
 Initial Comments
 ----------------
 This system is not complete yet, code is here only for demo purposes!
-The system has been installed, developed and tested on Debian 7.
+The system has been installed, developed and tested on Debian 7, and Windows 7.
 
 This web solution uses [DiskReporter](https://github.com/itnifl/DiskReporter) to fetch data, cache it in MongoDB and present it as HTML to the requesting system.
 
@@ -19,7 +19,7 @@ This web solution uses [DiskReporter](https://github.com/itnifl/DiskReporter) to
 
 Prerequisites
 -------------
-My Movie API installation and operation requires that the following software is installed:
+DiskReportWeb installation and operation requires that the following software is installed:
 
 	1. npm
 	2. Node-gyp and mocha

@@ -38,6 +38,8 @@ exports.addRoutes = function (HapiServer) {
 	    			console.log("[Default route](VerboseDebug) Found servers:".yellow);
 	    			console.log(JSON.stringify(servers, null, 2));
 	    		}
+	    		servers.Collection = servers.ServerCollection;
+	    		delete servers.ServerCollection;
 			    reply.view('index', { title: 'Welcome to Disk Reporting', body: servers });
 			});
 	    }
@@ -47,6 +49,8 @@ exports.addRoutes = function (HapiServer) {
 	    path: '/GroupAdmin',
 	    handler: function (request, reply) {
 	    	getGroups('', function(groupInfo) {
+	    		groupInfo.Collection = groupInfo.Groups;
+	    		delete groupInfo.Groups;
 	    		reply.view('groupAdmin', { title: 'Group Admin', body: groupInfo });
 	    	});			
 	    }
