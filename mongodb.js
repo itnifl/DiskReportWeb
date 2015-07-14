@@ -32,12 +32,12 @@ MongoDB.prototype.close = function() {
  * Initial database operations should be handeled in callback.
  */
 MongoDB.prototype.open = function(collection, responseHandler) {
-	if(Config.VerboseDebug) console.log('DB connection status at open call is: ' + this.db._state + "..".yellow);
+	if(Config.VerboseDebug) console.log('DB connection status at open call is: '.yellow + this.db._state + "..");
 	if(this.db._state != 'connecting' && this.db._state != 'connected') {
 		this.db.open(function(err, db) {
 		    if (!err) {
-		        if (Config.Debug) console.log("Connected to the '" + Config.Database + "' database, the connection status is now open..");
-				db.collection(collection, {strict:true}, function(err, collection) {
+		        if (Config.Debug) console.log("Connected to the '" + Config.Database + "' database and '" + collection + "' collection, the connection status is now open..");
+				db.collection(collection, {strict:true}, function(err, result) {
 				    if (err && Config.Debug) console.log("Something happened when connecting to the '" + collection + "' collection: " + err);
                     if(CommonJS.isFunction(responseHandler)) responseHandler(err);
 		        });                
@@ -75,24 +75,72 @@ MongoDB.prototype.saveGroup = function(groupAsjSon, responseHandler) {
 };
 
 /**
+ * deleteGroup function.
+ * @param {String} groupName A group name to remove
+ * @param {Function} responseHandler ResponseHandler Callback
+ */
+MongoDB.prototype.deleteGroup = function(groupName, responseHandler) {
+    this.db.collection(Config.GroupCollection, function(err, collection) {
+        if(err && CommonJS.isFunction(responseHandler)) return responseHandler({status: false, error: err});
+        if (Config.Debug) console.log('Attempting to remove group: ' + groupName);
+        collection.remove({"Name": groupName}, function(err, result) {
+            if (err && CommonJS.isFunction(responseHandler)) return responseHandler({status: false, error: err});
+            if (Config.Debug) console.log('.. remove was successful!');
+            if(CommonJS.isFunction(responseHandler)) responseHandler({status: true});
+        });
+    });
+};
+
+/**
+ * addGroup function. Creates a empty group with a specified name. 
+ * @param {String} grouName A group represented as jSON to be stored in the database
+ * @param {Function} responseHandler ResponseHandler Callback
+ */
+MongoDB.prototype.addGroup = function(groupName, responseHandler) {
+    var groupObj = {
+        "Name": groupName,
+        "Servers": []
+    }
+    if (Config.VerboseDebug) console.log('Saving groupObj: ' + JSON.stringify(groupObj, undefined, 2));
+    if (Config.Debug) console.log('Saving group to mongodb: ' + groupObj.Name);
+
+    if(groupObj.hasOwnProperty("Warning")) delete groupObj.Warning;
+
+    this.db.collection(Config.GroupCollection, function(err, collection) {
+        if(err && CommonJS.isFunction(responseHandler)) return responseHandler({status: false, error: err});
+        if (Config.Debug) console.log('Attempting to create new group: ' + groupObj.Name);
+        collection.update({"Name": groupObj.Name}, groupObj, {safe:true, upsert:true}, function(err, result) {
+            if (err && CommonJS.isFunction(responseHandler)) return responseHandler({status: false, error: err});
+            if (Config.Debug) console.log('.. save success!');
+            if(CommonJS.isFunction(responseHandler)) responseHandler({status: true, group: groupObj});
+        });
+    });
+};
+
+
+/**
  * getGroups function.
  * @param String filter The name of the group you are searching for, empty string if no filter
  * @param {Function} responseHandler ResponseHandler Callback
  * Returns group(s) and its members as a JSON object
  */
 MongoDB.prototype.getGroups = function(filter, responseHandler) {
-    if (Config.Debug) console.log('Retrieving groups from mongodb: "' + filter +'"');
+    if (Config.Debug) console.log('Retrieving groups from mongodb with filter: "' + filter +'"');
     
     this.db.collection(Config.GroupCollection, function (err, collection) {
-        collection.findOne({ "Name": filter }, function (err, groupInfo) {
-            if (groupInfo) { 
-                if (Config.VerboseDebug) console.log("Found group(s) in mongodb: " + JSON.stringify(groupInfo, undefined, 2));     
+        collection.find().toArray(function (err, groupInfo) {
+            if (groupInfo && groupInfo.length > 0) { 
                 if (Config.Debug && !Config.VerboseDebug) console.log("Found this amount of groups in mongodb: " + groupInfo.length + "..");
-                if(CommonJS.isFunction(responseHandler)) responseHandler({
-                    "Groups": [
-                        groupInfo
-                    ]
-                });
+                if(filter && filter != "") {
+                    groupInfo = $.grep(groupInfo, function (n, i) {
+                        return n.Name === filter;
+                    });
+                }
+                groupInfo = {
+                    "Groups": groupInfo
+                }; 
+                if (Config.VerboseDebug) console.log("Replying with: ".yellow + JSON.stringify(groupInfo, null, 2));
+                if (CommonJS.isFunction(responseHandler)) responseHandler(groupInfo);
             } else {
                 groupInfo = {
                     "Groups": [

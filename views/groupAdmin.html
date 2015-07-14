@@ -1,3 +1,21 @@
+<script type="text/javascript" src="https://cdn.socket.io/socket.io-1.2.0.js"></script>
+<script type="text/javascript">
+  var socket = io.connect('{{url}}');
+  socket.on('updateGroupList', function (data) {
+    debugger;
+    if(data.status) {
+      if(data.group.constructor === Array) {
+        data.group.forEach(function(grp) {
+          if(grp.status && grp.Name && !grp.delete) $('#groupList').append('<div id="'+grp.Name+'-selection" onClick="togglePanelSelection(this);" class="myHandCursor" ng-click=\'selectGroup("'+grp.Name+'")\'>'+grp.Name+'</div>');
+          else $(grp.Name + '-selection').fadeOut('slow', function() { $(this).remove();});
+        });
+      } else {
+        if(data.group.Name && !grp.delete) $('#groupList').append('<div id="'+data.group.Name+'-selection" onClick="togglePanelSelection(this);" class="myHandCursor" ng-click=\'selectGroup("'+data.group.Name+'")\'>'+data.group.Name+'</div>');
+        else $(data.group.Name + '-selection').fadeOut('slow', function() { $(this).remove();});
+      }
+    }    
+  });
+</script>
 <div class="panel panel-default">
 	<div class="panel-body">
 		<div class="container-fluid">
@@ -18,13 +36,71 @@
   </div>
 </div>
 <script type="text/javascript">
-  var app = angular.module('myApp', ['ngAnimate']));
+  var app = angular.module('myApp', ['ngAnimate']);
   
   setAngularBracket(app);
-  app.controller('myGroupAdminCtrl', function($scope) {
-
+  app.controller('myGroupAdminCtrl', function($scope, $http) {
+    $scope.addGroupInput = null;
+    $scope.$watch('addGroupInput', function (newValue, oldValue) {
+      if(newValue == "")
+        $scope.addGroupInput = null;
+    });
+    $scope.createGroup = function(groupName) {
+      $http.post('/GroupAdmin', 
+        { groupName: $scope.addGroupInput }
+      ).success(
+        function(data, status, headers, config) {
+          if(data.success) {
+            if($('#formGroupAddGroup').hasClass('has-error')) {
+              $('#formGroupAddGroup').removeClass('has-error');
+              $('#formGroupAddGroup > span').remove();
+            }
+            $('#formGroupAddGroup').addClass('has-success').addClass('has-feedback').append('<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span> <span id="myAddgroupInputStatus" class="sr-only">(success)</span>');
+            setTimeout(function() {
+              $('#myModalAddGroup').modal('hide');
+              $('#formGroupAddGroup').removeClass('has-success has-feedback');
+              $('#formGroupAddGroup > span').remove();
+            }, 2000);
+          } else {
+            $('#formGroupAddGroup').addClass('has-error').addClass('has-feedback').append('<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span><span id="myAddgroupInputStatus" class="sr-only">(error)</span>');
+          }
+        }   
+      ).error(
+        function(data, status, headers, config) {
+          $('#formGroupAddGroup').addClass('has-error').addClass('has-feedback').append('<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span><span id="myAddgroupInputStatus" class="sr-only">(error)</span>');
+        }
+      );
+    }
     $scope.selectGroup = function(groupName) { 
 
+    }
+    $scope.removeGroup = function() { 
+      var groupNames = new Array();
+      //$('.alert-info').each(function(index, obj) {groupNames.push($(this).text())});
+
+      var els = angular.element('.alert-info');
+      angular.forEach(els, function(el) {
+        groupNames.push(el.innerText);
+      });
+      $http(
+        { url: '/GroupAdmin', 
+          method: 'DELETE', 
+          data: {groupName: groupNames}, 
+          headers: {"Content-Type": "application/json;charset=utf-8"}
+        }
+      ).success(
+        function(data, status, headers, config) {
+          if(data.success) {
+
+          } else {
+            
+          }
+        }   
+      ).error(
+        function(data, status, headers, config) {
+          
+        }
+      );
     }
   });
 </script>

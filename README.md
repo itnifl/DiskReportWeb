@@ -89,11 +89,19 @@ Thus in the XML file you may write a server tag cluster two or any number of mul
 </SERVER>
 ```
 
-When done, create the database movies as such from the Linux console:
+When done, create the database DiskReporter as such from the Linux console after connecting to mongodb:
 
 ```
 mongo DiskReporter
 ```
+
+Next we want to pre-create the collections we are going to use:
+```
+use DiskReporter;
+db.createCollection("DiskReporterCache")
+db.createCollection("DiskReporterGroups")
+```
+
 
 Installing
 ----------
