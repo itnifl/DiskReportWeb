@@ -5,6 +5,7 @@ var Config = require('./config');
 var MongoDB = require('./mongodb');
 var CommonJS = require('./commonServerSideJS.js');
 var root = require('./server.js');
+var async = require("async");
 
 function getServers(callBack) {
 	var doGetServers = Edge.func({
@@ -107,23 +108,40 @@ exports.addRoutes = function (HapiServer) {
 	    	}
 	    	if(request.payload.groupName.constructor === Array) {
 	    		var ourResultArray = new Array();
-	    		var ourStatus = true;
-		    	request.payload.groupName.forEach(function(item) {
-		    		deleteGroup(item, function(deleteInfo) {
-			    		ourResultArray.push({"delete": true, "status": deleteInfo.status, "Name": item});
-			    		if(!deleteInfo.status) ourStatus = deleteInfo.status;
-		    		});		    		
-		    	});
-		    	if(ourStatus) {
-		    		if(Config.VerboseDebug) console.log("Initiating group change to socket.io clients: ".yellow + JSON.stringify(ourResultArray, null, 2));
-	    			root.updateGroupList(ourResultArray);
-		    		reply({ "success": true }).code(200);
-	    		} else reply({ "success": false }).code(304);
+	    		var ourStatus = false;
+	    		if(Config.VerboseDebug) console.log("Determined that request.payload.groupName is an array.. ".yellow);
+
+				async.waterfall([
+				   function(waterfall_callback) {
+				   		request.payload.groupName.forEach(function(item) {
+				    		deleteGroup(item, function(deleteInfo) {
+				    			var returnPayload = {"delete": true, "status": deleteInfo.status, "name": item};
+					    		ourResultArray.push(returnPayload);
+					    		if(deleteInfo.status) {
+					    			ourStatus = deleteInfo.status;
+					    			root.updateGroupList(returnPayload);
+					    		}
+				    		});		    		
+				    	});
+				      	waterfall_callback(null);
+				   },
+				   function(waterfall_callback) {
+				   		if(ourStatus) {
+		    				if(Config.VerboseDebug) console.log("Initiating group change to socket.io clients: ".yellow + JSON.stringify(ourResultArray, null, 2));	    					
+		    				reply({ "success": true }).code(200);
+	    				} else reply({ "success": false }).code(304);
+				      	waterfall_callback(null);
+				   	}
+				   ], function(err) {
+				      if(err && Config.Debug) console.log("(Debug) Received error after async waterfall in method: 'DELETE', path: '/GroupAdmin': " + err);
+				   }
+				);
 	    	} else {
 	    		deleteGroup(request.payload.groupName, function(deleteInfo) {
 		    		if(deleteInfo.status) {
-		    			if(Config.VerboseDebug) console.log("Initiating group change to socket.io clients: ".yellow + request.payload.groupName);
-		    			root.updateGroupList({"delete": true, "status": deleteInfo.status, "Name": request.payload.groupName});
+		    			var returnPayload = {"delete": true, "status": deleteInfo.status, "name": request.payload.groupName};
+		    			if(Config.VerboseDebug) console.log("Initiating group change to socket.io clients: ".yellow + returnPayload);
+		    			root.updateGroupList(returnPayload);
 		    			reply({ "success": true }).code(200);
 		    		} else {
 		    			if(Config.VerboseDebug) console.log("Something failed: ".yellow + JSON.stringify(deleteInfo, null, 2));

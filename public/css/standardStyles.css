@@ -28,3 +28,10 @@
 	background-color: #d9edf7 !important; 
 	border-color: #bce8f1;
 }
+.myCreateGroupErrorLabel {
+ margin-left:15px !important; 
+ width:566px !important;
+ padding-top:5px !important;
+ padding-bottom:5px !important; 
+ margin-top:10px !important; 
+}

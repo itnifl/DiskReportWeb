@@ -43,6 +43,6 @@ async.waterfall([
       waterfall_callback(null);
    }
    ], function(err) {
-      if(err && Config.Debug) console.log("(Debug)Received error after async waterfall in server.js: " + err);
+      if(err && Config.Debug) console.log("(Debug) Received error after async waterfall in server.js: " + err);
    }
 );

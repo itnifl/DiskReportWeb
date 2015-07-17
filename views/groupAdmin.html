@@ -2,16 +2,19 @@
 <script type="text/javascript">
   var socket = io.connect('{{url}}');
   socket.on('updateGroupList', function (data) {
-    debugger;
     if(data.status) {
-      if(data.group.constructor === Array) {
+      if(typeof data.group === 'object' && data.group.constructor === Array) {
         data.group.forEach(function(grp) {
-          if(grp.status && grp.Name && !grp.delete) $('#groupList').append('<div id="'+grp.Name+'-selection" onClick="togglePanelSelection(this);" class="myHandCursor" ng-click=\'selectGroup("'+grp.Name+'")\'>'+grp.Name+'</div>');
-          else $(grp.Name + '-selection').fadeOut('slow', function() { $(this).remove();});
+          if(grp.status && grp.name && !grp.delete) $('#groupList').append('<div id="'+ fixMyID(grp.name) +'-selection" onClick="togglePanelSelection(this);" class="myHandCursor" ng-click=\'selectGroup("' + fixMyID(grp.name) + '")\'>'+grp.name+'</div>');
+          else $(fixMyID(grp.Name) + '-selection').fadeOut('slow', function() { $(this).remove();});
         });
       } else {
-        if(data.group.Name && !grp.delete) $('#groupList').append('<div id="'+data.group.Name+'-selection" onClick="togglePanelSelection(this);" class="myHandCursor" ng-click=\'selectGroup("'+data.group.Name+'")\'>'+data.group.Name+'</div>');
-        else $(data.group.Name + '-selection').fadeOut('slow', function() { $(this).remove();});
+        var shallDelete = data.hasOwnProperty('group') && data.group.hasOwnProperty('delete') ? data.group.delete : data.delete;
+        var name = typeof data.group === 'object' ? data.group.name : data.name;        
+        if(name && !shallDelete) {
+          $('#groupList').append('<div id="'+ fixMyID(name) +'-selection" onClick="togglePanelSelection(this);" class="myHandCursor" ng-click=\'selectGroup("'+fixMyID(name)+'")\'>'+name+'</div>');           
+          $('#' + fixMyID("No groups found") + '-selection').fadeOut('slow', function() { $(this).remove();});
+        } else if(name && shallDelete) $('#' + fixMyID(name) + '-selection').fadeOut('slow', function() { $(this).remove();});
       }
     }    
   });
@@ -45,62 +48,76 @@
       if(newValue == "")
         $scope.addGroupInput = null;
     });
-    $scope.createGroup = function(groupName) {
-      $http.post('/GroupAdmin', 
-        { groupName: $scope.addGroupInput }
-      ).success(
-        function(data, status, headers, config) {
-          if(data.success) {
-            if($('#formGroupAddGroup').hasClass('has-error')) {
-              $('#formGroupAddGroup').removeClass('has-error');
-              $('#formGroupAddGroup > span').remove();
-            }
-            $('#formGroupAddGroup').addClass('has-success').addClass('has-feedback').append('<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span> <span id="myAddgroupInputStatus" class="sr-only">(success)</span>');
-            setTimeout(function() {
-              $('#myModalAddGroup').modal('hide');
-              $('#formGroupAddGroup').removeClass('has-success has-feedback');
-              $('#formGroupAddGroup > span').remove();
-            }, 2000);
-          } else {
-            $('#formGroupAddGroup').addClass('has-error').addClass('has-feedback').append('<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span><span id="myAddgroupInputStatus" class="sr-only">(error)</span>');
-          }
-        }   
-      ).error(
-        function(data, status, headers, config) {
-          $('#formGroupAddGroup').addClass('has-error').addClass('has-feedback').append('<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span><span id="myAddgroupInputStatus" class="sr-only">(error)</span>');
-        }
-      );
-    }
-    $scope.selectGroup = function(groupName) { 
+    $scope.$watch('renameGroupInput', function (newValue, oldValue) {
+      if(newValue == "")
+        $scope.renameGroupInput = null;
+    });
+    $scope.renameGroup = function() {
 
     }
-    $scope.removeGroup = function() { 
+    $scope.createGroup = function() {
       var groupNames = new Array();
-      //$('.alert-info').each(function(index, obj) {groupNames.push($(this).text())});
 
-      var els = angular.element('.alert-info');
+      var els = angular.element('#groupList > div');
       angular.forEach(els, function(el) {
         groupNames.push(el.innerText);
       });
-      $http(
-        { url: '/GroupAdmin', 
-          method: 'DELETE', 
-          data: {groupName: groupNames}, 
-          headers: {"Content-Type": "application/json;charset=utf-8"}
-        }
-      ).success(
-        function(data, status, headers, config) {
-          if(data.success) {
+      var validName = $scope.addGroupInput.toLowerCase() != "no groups found" && groupNames.indexOf($scope.addGroupInput) == -1 ? true : false; 
 
-          } else {
-            
+      if(validName) {
+        $http.post('/GroupAdmin', 
+          { groupName: $scope.addGroupInput }
+        ).success(
+          function(data, status, headers, config) {
+            if(data.success) {
+              if($('#formGroupAddGroup').hasClass('has-error')) {
+                $('#formGroupAddGroup').removeClass('has-error');
+                $('#formGroupAddGroup > span').remove();
+                $('#formGroupAddGroup > div').remove();
+              }
+              $('#formGroupAddGroup').addClass('has-success').addClass('has-feedback').append('<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span> <span id="myAddgroupInputStatus" class="sr-only">(success)</span>');
+              setTimeout(function() {
+                $('#myModalAddGroup').modal('hide');
+                $('#formGroupAddGroup').removeClass('has-success has-feedback');
+                $('#formGroupAddGroup > span').remove();
+              }, 2000);
+            } else {
+              $('#formGroupAddGroup > div').remove();
+              $('#formGroupAddGroup').addClass('has-error').addClass('has-feedback').append('<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span><span id="myAddgroupInputStatus" class="sr-only">(error)</span><div class="alert alert-danger myCreateGroupErrorLabel" role="alert">Some error happened, alert administrator if it persists</div>');
+            }
+          }   
+        ).error(
+          function(data, status, headers, config) {
+            $('#formGroupAddGroup').addClass('has-error').addClass('has-feedback').append('<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span><span id="myAddgroupInputStatus" class="sr-only">(error)</span><div class="alert alert-danger myCreateGroupErrorLabel" role="alert">'+headers+'</div>');
           }
-        }   
-      ).error(
-        function(data, status, headers, config) {
-          
+        );
+      } else {
+        if(!$('#formGroupAddGroup').hasClass('has-error')) {
+          $('#formGroupAddGroup').addClass('has-error').addClass('has-feedback').append('<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span><span id="myAddgroupInputStatus" class="sr-only">(error)</span><div class="alert alert-danger myCreateGroupErrorLabel" role="alert">Name already exists or is invalid</div>');
         }
-      );
+      }
+    }
+    $scope.selectGroup = function(groupIdName) { 
+      var element = angular.element('#'+groupIdName + '-selection');
+      if(element.hasClass('alert-info')) $scope.renameGroupInput = element.text();
+      if(angular.element('.alert-info').length == 0) $scope.renameGroupInput = null;
+    }
+    $scope.removeGroup = function() { 
+      var groupNames = new Array();
+
+      var els = angular.element('.alert-info');
+      angular.forEach(els, function(el) {
+        if("No groups found" != el.innerText) groupNames.push(el.innerText);
+      });
+      if(groupNames.length > 0) {
+        $http(
+          { url: '/GroupAdmin', 
+            method: 'DELETE', 
+            data: {groupName: groupNames}, 
+            headers: {"Content-Type": "application/json;charset=utf-8"}
+          }
+        );
+      }
     }
   });
 </script>

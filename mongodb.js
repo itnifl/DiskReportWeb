@@ -59,14 +59,14 @@ MongoDB.prototype.open = function(collection, responseHandler) {
 MongoDB.prototype.saveGroup = function(groupAsjSon, responseHandler) {
 	var groupObj = typeof groupAsjSon =='object' ? groupAsjSon : JSON.parse(groupAsjSon);
     if (Config.VerboseDebug) console.log('Saving groupObj: ' + JSON.stringify(groupObj, undefined, 2));
- 	if (Config.Debug) console.log('Saving group to mongodb: ' + groupObj.Name);
+ 	if (Config.Debug) console.log('Saving group to mongodb: ' + groupObj.name);
 
     if(groupObj.hasOwnProperty("Warning")) delete groupObj.Warning;
 
     this.db.collection(Config.GroupCollection, function(err, collection) {
     	if(err && CommonJS.isFunction(responseHandler)) return responseHandler({status: false, error: err});
-    	if (Config.Debug) console.log('Attempting to upsert group: ' + groupObj.Name);
-        collection.update({"Name": groupObj.Name}, groupObj, {safe:true, upsert:true}, function(err, result) {
+    	if (Config.Debug) console.log('Attempting to upsert group: ' + groupObj.name);
+        collection.update({"name": groupObj.Name}, groupObj, {safe:true, upsert:true}, function(err, result) {
             if (err && CommonJS.isFunction(responseHandler)) return responseHandler({status: false, error: err});
             if (Config.Debug) console.log('.. save success!');
             if(CommonJS.isFunction(responseHandler)) responseHandler({status: true});
@@ -83,7 +83,7 @@ MongoDB.prototype.deleteGroup = function(groupName, responseHandler) {
     this.db.collection(Config.GroupCollection, function(err, collection) {
         if(err && CommonJS.isFunction(responseHandler)) return responseHandler({status: false, error: err});
         if (Config.Debug) console.log('Attempting to remove group: ' + groupName);
-        collection.remove({"Name": groupName}, function(err, result) {
+        collection.remove({"name": groupName}, function(err, result) {
             if (err && CommonJS.isFunction(responseHandler)) return responseHandler({status: false, error: err});
             if (Config.Debug) console.log('.. remove was successful!');
             if(CommonJS.isFunction(responseHandler)) responseHandler({status: true});
@@ -98,18 +98,18 @@ MongoDB.prototype.deleteGroup = function(groupName, responseHandler) {
  */
 MongoDB.prototype.addGroup = function(groupName, responseHandler) {
     var groupObj = {
-        "Name": groupName,
-        "Servers": []
+        "name": groupName,
+        "servers": []
     }
     if (Config.VerboseDebug) console.log('Saving groupObj: ' + JSON.stringify(groupObj, undefined, 2));
-    if (Config.Debug) console.log('Saving group to mongodb: ' + groupObj.Name);
+    if (Config.Debug) console.log('Saving group to mongodb: ' + groupObj.name);
 
     if(groupObj.hasOwnProperty("Warning")) delete groupObj.Warning;
 
     this.db.collection(Config.GroupCollection, function(err, collection) {
         if(err && CommonJS.isFunction(responseHandler)) return responseHandler({status: false, error: err});
         if (Config.Debug) console.log('Attempting to create new group: ' + groupObj.Name);
-        collection.update({"Name": groupObj.Name}, groupObj, {safe:true, upsert:true}, function(err, result) {
+        collection.update({"name": groupObj.Name}, groupObj, {safe:true, upsert:true}, function(err, result) {
             if (err && CommonJS.isFunction(responseHandler)) return responseHandler({status: false, error: err});
             if (Config.Debug) console.log('.. save success!');
             if(CommonJS.isFunction(responseHandler)) responseHandler({status: true, group: groupObj});
@@ -133,26 +133,29 @@ MongoDB.prototype.getGroups = function(filter, responseHandler) {
                 if (Config.Debug && !Config.VerboseDebug) console.log("Found this amount of groups in mongodb: " + groupInfo.length + "..");
                 if(filter && filter != "") {
                     groupInfo = $.grep(groupInfo, function (n, i) {
-                        return n.Name === filter;
+                        return n.name === filter;
                     });
                 }
+                groupInfo.forEach(function(item) {
+                    item.idName = CommonJS.fixMyID(item.name);
+                });
                 groupInfo = {
                     "Groups": groupInfo
                 }; 
                 if (Config.VerboseDebug) console.log("Replying with: ".yellow + JSON.stringify(groupInfo, null, 2));
-                if (CommonJS.isFunction(responseHandler)) responseHandler(groupInfo);
             } else {
                 groupInfo = {
                     "Groups": [
                         {
-                            "Name": "No groups found",
-                            "Servers": []
+                            "idName": CommonJS.fixMyID("No groups found"),
+                            "name": "No groups found",
+                            "servers": []
                         }
                     ]
                 };
                 if(Config.Debug) console.log("Found no groups using filter: '" + filter + "'..");
-                if(CommonJS.isFunction(responseHandler)) responseHandler(groupInfo);
             }
+            if(CommonJS.isFunction(responseHandler)) responseHandler(groupInfo);
         });
     });
 };

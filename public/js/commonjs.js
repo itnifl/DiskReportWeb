@@ -170,3 +170,10 @@ function hideAllSearchItems() {
    if($('.navList > li:hover').length == 0) $('.navList > li').hide("slow");
    $('#myMainSearchBar').focus();
 }
+/***
+ * fixMyID function.
+ * Cleans up a string to be used as an ID
+ */
+function fixMyID(id) {
+    return id.replace(/\W/g,'_');
+}
