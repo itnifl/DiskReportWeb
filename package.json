@@ -19,7 +19,8 @@
         "handlebars": "latest",
         "colors": "latest",
         "path": "latest",
-        "socket.io": "latest"
+        "socket.io": "latest",
+        "util": "latest"
     }
 }
 

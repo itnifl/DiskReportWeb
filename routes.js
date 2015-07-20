@@ -5,7 +5,8 @@ var Config = require('./config');
 var MongoDB = require('./mongodb');
 var CommonJS = require('./commonServerSideJS.js');
 var root = require('./server.js');
-var async = require("async");
+var Async = require("async");
+var Util = require('util');
 
 function getServers(callBack) {
 	var doGetServers = Edge.func({
@@ -20,37 +21,37 @@ function getServers(callBack) {
 }
 function getGroups(filter, callBack) {
 	var mongodb = new MongoDB(Config.MongoServer, Config.MongoPort);
-  	if (Config.Debug) console.log("* [GroupAdmin] Getting all defined groups.");
-  	if (Config.VerboseDebug) console.log("(VerboseDebug) Using collection: ".yellow + Config.GroupCollection + ", in database: " + Config.Database);
+  	if (Config.Debug) Util.log("* [GroupAdmin] Getting all defined groups.");
+  	if (Config.VerboseDebug) Util.log("(VerboseDebug) Using collection: ".yellow + Config.GroupCollection + ", in database: " + Config.Database);
   	mongodb.open(Config.GroupCollection, function(connectionResponse) {
 	    mongodb.getGroups(filter, function(groupInfo) {
-	    	if(Config.VerboseDebug) console.log('(VerboseDebug) Successfully got info on server groups: '.yellow + JSON.stringify(groupInfo, null, 2));        
+	    	if(Config.VerboseDebug) Util.log('(VerboseDebug) Successfully got info on server groups: '.yellow + JSON.stringify(groupInfo, null, 2));        
 			if(CommonJS.isFunction(callBack)) callBack(groupInfo);            
 	    });      
   	});
 }
 function addGroup(groupName, callBack) {
 	var mongodb = new MongoDB(Config.MongoServer, Config.MongoPort);
-  	if (Config.Debug) console.log("* [GroupAdmin] Adding empty group: " + groupName);
-  	if (Config.VerboseDebug) console.log("(VerboseDebug) Using collection: ".yellow + Config.GroupCollection + ", in database: " + Config.Database);
+  	if (Config.Debug) Util.log("* [GroupAdmin] Adding empty group: " + groupName);
+  	if (Config.VerboseDebug) Util.log("(VerboseDebug) Using collection: ".yellow + Config.GroupCollection + ", in database: " + Config.Database);
   	mongodb.open(Config.GroupCollection, function(connectionResponse) {
-  		if (Config.VerboseDebug) console.log("(VerboseDebug) Initiating collection connect..".yellow);
+  		if (Config.VerboseDebug) Util.log("(VerboseDebug) Initiating collection connect..".yellow);
 	    mongodb.addGroup(groupName, function(saveInfo) {
-	    	if(Config.VerboseDebug && saveInfo.status) console.log('(VerboseDebug) Successfully saved empty group, got reply: '.yellow + JSON.stringify(saveInfo, null, 2));
-	    	if(Config.VerboseDebug && !saveInfo.status) console.log('(VerboseDebug) Failed to save empty group, got reply: '.red + JSON.stringify(saveInfo, null, 2));        
+	    	if(Config.VerboseDebug && saveInfo.status) Util.log('(VerboseDebug) Successfully saved empty group, got reply: '.yellow + JSON.stringify(saveInfo, null, 2));
+	    	if(Config.VerboseDebug && !saveInfo.status) Util.log('(VerboseDebug) Failed to save empty group, got reply: '.red + JSON.stringify(saveInfo, null, 2));        
 			if(CommonJS.isFunction(callBack)) callBack(saveInfo);            
 	    });      
   	});
 }
 function deleteGroup(groupName, callBack) {
 	var mongodb = new MongoDB(Config.MongoServer, Config.MongoPort);
-  	if (Config.Debug) console.log("* [GroupAdmin] Deleting group: " + groupName);
-  	if (Config.VerboseDebug) console.log("(VerboseDebug) Using collection: ".yellow + Config.GroupCollection + ", in database: " + Config.Database);
+  	if (Config.Debug) Util.log("* [GroupAdmin] Deleting group: " + groupName);
+  	if (Config.VerboseDebug) Util.log("(VerboseDebug) Using collection: ".yellow + Config.GroupCollection + ", in database: " + Config.Database);
   	mongodb.open(Config.GroupCollection, function(connectionResponse) {
-  		if (Config.VerboseDebug) console.log("(VerboseDebug) Initiating collection connect..".yellow);
+  		if (Config.VerboseDebug) Util.log("(VerboseDebug) Initiating collection connect..".yellow);
 	    mongodb.deleteGroup(groupName, function(deleteInfo) {
-	    	if(Config.VerboseDebug && deleteInfo.status) console.log('(VerboseDebug) Successfully deleted group, got reply: '.yellow + JSON.stringify(deleteInfo, null, 2));
-	    	if(Config.VerboseDebug && !deleteInfo.status) console.log('(VerboseDebug) Failed to delete group, got reply: '.red + JSON.stringify(deleteInfo, null, 2));        
+	    	if(Config.VerboseDebug && deleteInfo.status) Util.log('(VerboseDebug) Successfully deleted group, got reply: '.yellow + JSON.stringify(deleteInfo, null, 2));
+	    	if(Config.VerboseDebug && !deleteInfo.status) Util.log('(VerboseDebug) Failed to delete group, got reply: '.red + JSON.stringify(deleteInfo, null, 2));        
 			if(CommonJS.isFunction(callBack)) callBack(deleteInfo);            
 	    });      
   	});
@@ -63,8 +64,8 @@ exports.addRoutes = function (HapiServer) {
 	    handler: function (request, reply) {
 	    	getServers(function (servers) {
 	    		if(Config.VerboseDebug) {
-	    			console.log("[Default route](VerboseDebug) Found servers:".yellow);
-	    			console.log(JSON.stringify(servers, null, 2));
+	    			Util.log("[Default route](VerboseDebug) Found servers:".yellow);
+	    			Util.log(JSON.stringify(servers, null, 2));
 	    		}
 	    		servers.Collection = servers.ServerCollection;
 	    		delete servers.ServerCollection;
@@ -88,7 +89,7 @@ exports.addRoutes = function (HapiServer) {
 	    path: '/GroupAdmin',
 	    handler: function (request, reply) {
 	    	if(Config.Debug) { 
-	    		console.log('(Debug)Received request to create group: ' + JSON.stringify(request.payload, null, 2)); 
+	    		Util.log('(Debug)Received request to create group: ' + JSON.stringify(request.payload, null, 2)); 
 	    	}
 	    	addGroup(request.payload.groupName, function(saveInfo) {
 	    		if(saveInfo.status) {
@@ -104,14 +105,14 @@ exports.addRoutes = function (HapiServer) {
 	    path: '/GroupAdmin',
 	    handler: function (request, reply) {
 	    	if(Config.Debug) { 
-	    		console.log('(Debug)Received request to delete group(s): ' + JSON.stringify(request.payload, null, 2)); 
+	    		Util.log('(Debug)Received request to delete group(s): ' + JSON.stringify(request.payload, null, 2)); 
 	    	}
 	    	if(request.payload.groupName.constructor === Array) {
 	    		var ourResultArray = new Array();
 	    		var ourStatus = false;
-	    		if(Config.VerboseDebug) console.log("Determined that request.payload.groupName is an array.. ".yellow);
+	    		if(Config.VerboseDebug) Util.log("Determined that request.payload.groupName is an array.. ".yellow);
 
-				async.waterfall([
+				Async.waterfall([
 				   function(waterfall_callback) {
 				   		request.payload.groupName.forEach(function(item) {
 				    		deleteGroup(item, function(deleteInfo) {
@@ -127,24 +128,24 @@ exports.addRoutes = function (HapiServer) {
 				   },
 				   function(waterfall_callback) {
 				   		if(ourStatus) {
-		    				if(Config.VerboseDebug) console.log("Initiating group change to socket.io clients: ".yellow + JSON.stringify(ourResultArray, null, 2));	    					
+		    				if(Config.VerboseDebug) Util.log("Initiating group change to socket.io clients: ".yellow + JSON.stringify(ourResultArray, null, 2));	    					
 		    				reply({ "success": true }).code(200);
 	    				} else reply({ "success": false }).code(304);
 				      	waterfall_callback(null);
 				   	}
 				   ], function(err) {
-				      if(err && Config.Debug) console.log("(Debug) Received error after async waterfall in method: 'DELETE', path: '/GroupAdmin': " + err);
+				      if(err && Config.Debug) Util.log("(Debug) Received error after async waterfall in method: 'DELETE', path: '/GroupAdmin': " + err);
 				   }
 				);
 	    	} else {
 	    		deleteGroup(request.payload.groupName, function(deleteInfo) {
 		    		if(deleteInfo.status) {
 		    			var returnPayload = {"delete": true, "status": deleteInfo.status, "name": request.payload.groupName};
-		    			if(Config.VerboseDebug) console.log("Initiating group change to socket.io clients: ".yellow + returnPayload);
+		    			if(Config.VerboseDebug) Util.log("Initiating group change to socket.io clients: ".yellow + returnPayload);
 		    			root.updateGroupList(returnPayload);
 		    			reply({ "success": true }).code(200);
 		    		} else {
-		    			if(Config.VerboseDebug) console.log("Something failed: ".yellow + JSON.stringify(deleteInfo, null, 2));
+		    			if(Config.VerboseDebug) Util.log("Something failed: ".yellow + JSON.stringify(deleteInfo, null, 2));
 		    			reply({ "success": false }).code(304);
 		    		}
 	    		});
@@ -209,8 +210,8 @@ exports.addRoutes = function (HapiServer) {
 	        'use strict';	        
 	        getServers(function (servers) {
 	    		if(Config.VerboseDebug) {
-	    			console.log("(VerboseDebug)Found servers when using route /ServerList:".yellow);
-	    			console.log(JSON.stringify(servers, null, 2));
+	    			Util.log("(VerboseDebug)Found servers when using route /ServerList:".yellow);
+	    			Util.log(JSON.stringify(servers, null, 2));
 	    		}
 			    reply({
 		            "servers": servers

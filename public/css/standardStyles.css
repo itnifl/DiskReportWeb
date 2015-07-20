@@ -35,3 +35,6 @@
  padding-bottom:5px !important; 
  margin-top:10px !important; 
 }
+.serverHeader-no-hover:hover {
+    background-color: transparent !important;
+}

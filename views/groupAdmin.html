@@ -18,6 +18,21 @@
       }
     }    
   });
+  function socketRenameGroup(oldName, newName, callBack) {
+    var ourJson = {oldName: oldName, newName: newName};
+    socket.emit('renameGroup', ourJson, function(error, message) {
+      if(isFunction(callBack)) {
+        callBack(!error ? {success: true, message: message, groupName: newName} : {success: false, message: message, error: error});
+      }
+    });
+  }
+  function socketGetGroup(name, callBack) {
+    socket.emit('getGroup', name, function(error, message) {
+      if(isFunction(callBack)) {
+        callBack(!error ? {success: true, error: null, groupInfo: message} : {success: false, error: error, groupInfo: null});
+      }
+    });
+  }
 </script>
 <div class="panel panel-default">
 	<div class="panel-body">
@@ -28,7 +43,17 @@
   					{{> leftGroupAdminMenuBar }}
   				</div>        
   				<div class="col-md-8">
-  			   
+            <div class="selectedServers" ng-animate="{enter:'insert-enter', leave:''}" style="-webkit-transition-delay:500ms"  ng-repeat="group in groups">  
+              <h3>{[{ group.name }]}</h3>
+              <table class="table table-hover" style="margin-left: 25px;">
+                <tr class="serverHeader-no-hover">
+                  <th>Server Name</th>
+                </tr>
+                <tr ng-repeat="server in group.servers">
+                  <td valign="top" style="padding-left:25px;padding-bottom:0px;padding-top:0px;">{[{ server }]}</td>
+                </tr>
+              </table>
+            </div>
           </div>
   				<div class="col-md-2">					
   				  {{> groupList body }}
@@ -44,6 +69,8 @@
   setAngularBracket(app);
   app.controller('myGroupAdminCtrl', function($scope, $http) {
     $scope.addGroupInput = null;
+    $scope.groups = new Array();
+
     $scope.$watch('addGroupInput', function (newValue, oldValue) {
       if(newValue == "")
         $scope.addGroupInput = null;
@@ -52,11 +79,53 @@
       if(newValue == "")
         $scope.renameGroupInput = null;
     });
+    $scope.selectGroup = function(groupIdName) { 
+      var element = angular.element('#'+groupIdName + '-selection');
+      if(element.hasClass('alert-info')) {
+        $scope.renameGroupInput = element.text();
+        $scope.prevName = element.text();       
+      }
+      socketGetGroup(element.text(), function(feedBack) {
+        if(feedBack.success) {
+          $(feedBack.groupInfo.Groups).each(function(index, ourGroup) {
+            
+            var groupExists = $.grep($scope.groups, function(group){
+              return group.name == ourGroup.name; 
+            });
+            if(groupExists.length > 0) {
+              $scope.groups = $.grep($scope.groups, function(group) { 
+                return group.name != ourGroup.name; 
+              });
+            } else $scope.groups.push(ourGroup);              
+          });            
+        }
+      }); 
+      if(angular.element('.alert-info').length == 0) $scope.renameGroupInput = null;
+    }
     $scope.renameGroup = function() {
-
+      socketRenameGroup($scope.prevName, $scope.renameGroupInput, function(data) {
+        if(data.success) {
+          if($('#formGroupRenameGroup').hasClass('has-error')) {
+            $('#formGroupRenameGroup').removeClass('has-error');
+            $('#formGroupRenameGroup > span').remove();
+            $('#formGroupRenameGroup > div').remove();
+          }
+          if($('#formGroupRenameGroup').hasClass('has-success')) {
+            $('#formGroupRenameGroup').removeClass('has-success has-feedback');
+            $('#formGroupRenameGroup > span').remove();
+          }
+          setTimeout(function() {
+            $('#formGroupRenameGroup').addClass('has-success').addClass('has-feedback').append('<span class="glyphicon glyphicon-ok form-control-feedback" aria-hidden="true"></span> <span id="myAddgroupInputStatus" class="sr-only">(success)</span>');
+            $scope.prevName = data.groupName;
+          }, 800);          
+        } else {
+          $('#formGroupRenameGroup > div').remove();
+          $('#formGroupRenameGroup').addClass('has-error').addClass('has-feedback').append('<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span><span id="myAddgroupInputStatus" class="sr-only">(error)</span><div class="alert alert-danger myCreateGroupErrorLabel" role="alert">Some error happened, alert administrator if it persists</div>');
+        }
+      });
     }
     $scope.createGroup = function() {
-      var groupNames = new Array();
+      var groupNames = new Array();      
 
       var els = angular.element('#groupList > div');
       angular.forEach(els, function(el) {
@@ -96,11 +165,6 @@
           $('#formGroupAddGroup').addClass('has-error').addClass('has-feedback').append('<span class="glyphicon glyphicon-remove form-control-feedback" aria-hidden="true"></span><span id="myAddgroupInputStatus" class="sr-only">(error)</span><div class="alert alert-danger myCreateGroupErrorLabel" role="alert">Name already exists or is invalid</div>');
         }
       }
-    }
-    $scope.selectGroup = function(groupIdName) { 
-      var element = angular.element('#'+groupIdName + '-selection');
-      if(element.hasClass('alert-info')) $scope.renameGroupInput = element.text();
-      if(angular.element('.alert-info').length == 0) $scope.renameGroupInput = null;
     }
     $scope.removeGroup = function() { 
       var groupNames = new Array();

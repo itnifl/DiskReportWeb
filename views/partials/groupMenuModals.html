@@ -15,7 +15,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" ng-disabled="addGroupInput == null" ng-click='createGroup()'>Save changes</button>
+        <button type="button" class="btn btn-primary" ng-disabled="addGroupInput == null" ng-click='createGroup()'>Create group</button>
       </div>
     </div>
   </div>
@@ -31,13 +31,13 @@
       <div class="modal-body">
         <form class="form-horizontal">
           <div class="form-group"  id="formGroupRenameGroup">
-              <input type="text" style="margin-left:15px; width:566px;" ng-model="renameGroupInput" class="form-control" placeholder="Group name" id="myRenameGroupInput" aria-describedby="myRenameGroupInputStatus">       
+              <input type="text" data-prevName="" style="margin-left:15px; width:566px;" ng-model="renameGroupInput" class="form-control" placeholder="Group name" id="myRenameGroupInput" aria-describedby="myRenameGroupInputStatus">            
           </div>
       </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" ng-disabled="renameGroupInput == null" ng-click='renameGroup()'>Save changes</button>
+        <button type="button" class="btn btn-primary" ng-disabled="renameGroupInput == null" ng-click='renameGroup()'>Rename group</button>
       </div>
     </div>
   </div>

@@ -2,7 +2,7 @@ module.exports = {
     Hostname: "localhost",
     Port: 3010,
     SocketIOPort: 3011,
-    MongoServer: "192.168.1.101",
+    MongoServer: "127.0.0.1",
     MongoPort: 27017,
     Database: 'DiskReporter',
     GroupCollection: 'DiskReporterGroups',
