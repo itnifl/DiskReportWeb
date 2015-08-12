@@ -78,6 +78,9 @@
     $scope.$watch('renameGroupInput', function (newValue, oldValue) {
       if(newValue == "")
         $scope.renameGroupInput = null;
+      else if(newValue) {
+        angular.element('#myModalRenameLabelGroupInfo').html('<font size="1">from name \'' + $scope.renameGroupInput + '.\'</font>');
+      }
     });
     $scope.selectGroup = function(groupIdName) { 
       var element = angular.element('#'+groupIdName + '-selection');
@@ -87,8 +90,7 @@
       }
       socketGetGroup(element.text(), function(feedBack) {
         if(feedBack.success) {
-          $(feedBack.groupInfo.Groups).each(function(index, ourGroup) {
-            
+          $(feedBack.groupInfo.Groups).each(function(index, ourGroup) {     
             var groupExists = $.grep($scope.groups, function(group){
               return group.name == ourGroup.name; 
             });

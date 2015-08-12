@@ -27,10 +27,12 @@
       <div class="modal-header">
         <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
         <h4 class="modal-title" id="myModalRenameLabel">Rename Group</h4>
+        <span id="myModalRenameLabelGroupInfo"></span>
       </div>
       <div class="modal-body">
         <form class="form-horizontal">
           <div class="form-group"  id="formGroupRenameGroup">
+              <label for="myRenameGroupInput" style="margin-left:15px;">New name</label> 
               <input type="text" data-prevName="" style="margin-left:15px; width:566px;" ng-model="renameGroupInput" class="form-control" placeholder="Group name" id="myRenameGroupInput" aria-describedby="myRenameGroupInputStatus">            
           </div>
       </form>
