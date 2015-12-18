@@ -163,6 +163,6 @@ No info yet
 
 Maintainers
 -----------
-Current maintainers of the MyMovieApi project:
+Current maintainers of the DiskReportWeb project:
 
 Atle Holm (atle@team-holm.net)
