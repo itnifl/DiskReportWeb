@@ -1,6 +1,21 @@
 DiskReportWeb
 ============
 
+## Screenshots
+
+### Overview
+
+![Overview Screenshot](ScreenShot02.07.png)
+
+### Disk Usage Report
+
+![Disk Usage Report](ScreenShot12.07.png)
+
+### Detailed View
+
+![Detailed View](ScreenShot29.06.png)
+
+
 Initial Comments
 ----------------
 This system is not complete yet, code is here only for demo purposes!
